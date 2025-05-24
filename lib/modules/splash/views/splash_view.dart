@@ -1,8 +1,10 @@
-import 'package:adaptive_theme/adaptive_theme.dart';
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:rama_poke_app/core/assets/gen/assets.gen.dart';
+import 'package:rama_poke_app/core/config/route_config.gr.dart';
 
+@RoutePage()
 class SplashView extends StatefulWidget {
   const SplashView({super.key});
 
@@ -15,17 +17,6 @@ class _SplashViewState extends State<SplashView> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        title: const Text('Splash Screen'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              AdaptiveTheme.of(context).toggleThemeMode();
-            },
-          ),
-        ],
-      ),
       body: Center(child: Lottie.asset(Assets.lotties.loadingAnimation.path)),
     );
   }
@@ -46,6 +37,6 @@ class _SplashViewState extends State<SplashView> {
   }
 
   void navigateToHome(BuildContext context) {
-    Navigator.pushReplacementNamed(context, '/home');
+    context.router.replaceAll([const HomeRoute()]);
   }
 }
