@@ -18,7 +18,10 @@ class HomeView extends StatelessWidget {
   Widget build(BuildContext context) {
     final homeController = context.watch<HomeController>();
     return Scaffold(
-      body: pages[homeController.currentIndex],
+      body: IndexedStack(
+        index: homeController.currentIndex,
+        children: pages,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: homeController.currentIndex,
         items: homeController.destinations,
@@ -26,6 +29,7 @@ class HomeView extends StatelessWidget {
         showSelectedLabels: true,
         showUnselectedLabels: false,
         type: BottomNavigationBarType.fixed,
+        
       ),
     );
   }
