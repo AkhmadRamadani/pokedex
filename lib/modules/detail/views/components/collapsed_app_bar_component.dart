@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:rama_poke_app/core/assets/element/element_color.dart';
-import 'package:rama_poke_app/core/assets/gen/assets.gen.dart';
+import 'package:rama_poke_app/core/shared/models/pokemon_model.dart';
+import 'package:rama_poke_app/core/shared/widgets/app_image_network_widget.dart';
 import 'package:rama_poke_app/modules/detail/views/clipper/custom_curve_clipper.dart';
 
 class CollapsingAppBar extends StatefulWidget {
   final ScrollController scrollController;
+  final PokemonEntityModel pokemon;
 
-  const CollapsingAppBar({super.key, required this.scrollController});
+  const CollapsingAppBar({
+    super.key,
+    required this.scrollController,
+    required this.pokemon,
+  });
 
   @override
   State<CollapsingAppBar> createState() => _CollapsingAppBarState();
@@ -68,7 +73,7 @@ class _CollapsingAppBarState extends State<CollapsingAppBar>
       expandedHeight: 300.h,
       pinned: true,
       automaticallyImplyLeading: false,
-      backgroundColor: ElementColor.fireElement,
+      backgroundColor: widget.pokemon.color,
       collapsedHeight: 60.h,
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -94,10 +99,11 @@ class _CollapsingAppBarState extends State<CollapsingAppBar>
                 opacity: (1 - _opacityAnimation.value).clamp(0.0, 1.0),
                 child:
                     sizeValue > 0.1
-                        ? Assets.images.dummies.charizard.image(
-                          fit: BoxFit.contain,
+                        ? AppImageNetworkWidget(
+                          imageUrl: widget.pokemon.imageurl ?? "",
                           width: 160.w * sizeValue,
-                          height: 160.w * sizeValue,
+                          height: 100.h * sizeValue,
+                          fit: BoxFit.cover,
                         )
                         : const SizedBox.shrink(),
               ),
@@ -111,7 +117,7 @@ class _CollapsingAppBarState extends State<CollapsingAppBar>
           child: ClipPath(
             clipper: CustomCurveClipper(),
             clipBehavior: Clip.antiAlias,
-            child: Container(height: 300.h, color: ElementColor.fireElement),
+            child: Container(height: 300.h, color: widget.pokemon.color),
           ),
         ),
         titlePadding: EdgeInsets.only(right: 16.w, top: 16.h),
@@ -135,21 +141,36 @@ class _CollapsingAppBarState extends State<CollapsingAppBar>
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           if (_opacityAnimation.value > 0.1)
-                            Assets.images.dummies.charizard.image(
-                              fit: BoxFit.contain,
+                            AppImageNetworkWidget(
+                              imageUrl: widget.pokemon.imageurl ?? "",
+                              fit: BoxFit.cover,
                               width: 80.w,
                               height: 80.w,
                             ),
-                          Flexible(
-                            child: Text(
-                              "Charizard",
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20.sp,
-                                fontWeight: FontWeight.bold,
+                          SizedBox(width: 12.w),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                widget.pokemon.name ?? "Pokemon",
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20.sp,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                            ),
+                              SizedBox(width: 4.w),
+                              Text(
+                                widget.pokemon.id ?? "#000",
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20.sp,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
