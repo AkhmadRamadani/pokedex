@@ -28,6 +28,14 @@ class PokedexApp extends StatelessWidget {
               theme: theme,
               darkTheme: darkTheme,
               routerConfig: _routeConfig.config(),
+              builder: (context, child) {
+                return GestureDetector(
+                  onTap: () {
+                    FocusScope.of(context).unfocus();
+                  },
+                  child: child,
+                );
+              },
             ),
           ),
     );
