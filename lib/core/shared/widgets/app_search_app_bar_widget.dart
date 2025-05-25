@@ -1,4 +1,6 @@
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_conditional/flutter_conditional.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:rama_poke_app/core/assets/gen/assets.gen.dart';
 
@@ -48,6 +50,30 @@ class _AppSearchAppBarWidgetState extends State<AppSearchAppBarWidget> {
     return Column(
       children: [
         AppBar(
+          actions: [
+            Conditional.single(
+              condition:
+                  AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark,
+              widget: IconButton(
+                icon: Icon(
+                  Icons.light_mode,
+                  color: Theme.of(context).textTheme.bodyMedium?.color,
+                ),
+                onPressed: () {
+                  AdaptiveTheme.of(context).toggleThemeMode(useSystem: false);
+                },
+              ),
+              fallback: IconButton(
+                icon: Icon(
+                  Icons.dark_mode,
+                  color: Theme.of(context).textTheme.bodyMedium?.color,
+                ),
+                onPressed: () {
+                  AdaptiveTheme.of(context).toggleThemeMode(useSystem: false);
+                },
+              ),
+            ),
+          ],
           title: TextFormField(
             controller: _searchController,
             onChanged: widget.onSearch,
