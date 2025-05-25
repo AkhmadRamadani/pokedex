@@ -3,7 +3,10 @@ import 'package:rama_poke_app/core/databases/mappers/string_to_pokemon_type_mapp
 import 'package:rama_poke_app/core/shared/models/pokemon_model.dart';
 
 extension PokemonHiveExtension on PokemonHiveModel {
-  PokemonEntityModel toEntity(List<PokemonHiveModel> evolutions) => PokemonEntityModel(
+  PokemonEntityModel toEntity(
+    List<PokemonHiveModel> evolutions,
+    bool isFavorite,
+  ) => PokemonEntityModel(
     id: id,
     abilities: abilities,
     attack: attack,
@@ -32,11 +35,11 @@ extension PokemonHiveExtension on PokemonHiveModel {
             .map((x) => StringToPokemonTypeMapper().map(x))
             .toList(),
     defense: defense,
-    evolutions: evolutions.map((e) => e.toEntity([])).toList(),
+    evolutions: evolutions.map((e) => e.toEntity([], false)).toList(),
     hp: hp,
     xdescription: xdescription,
     ydescription: ydescription,
     weight: weight,
+    isFavorite: isFavorite,
   );
-
 }
