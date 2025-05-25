@@ -19,8 +19,8 @@ class ButtonTypeComponent extends StatelessWidget {
               borderRadius: BorderRadius.circular(50.r),
             ),
             backgroundColor:
-                controller.selectedType != null
-                    ? (controller.selectedType?.color ??
+                controller.selectedTypeController.selectedType != null
+                    ? (controller.selectedTypeController.selectedType?.color ??
                         ElementColor.allTypeElement)
                     : ElementColor.allTypeElement,
             shadowColor: Colors.transparent,
@@ -33,7 +33,8 @@ class ButtonTypeComponent extends StatelessWidget {
               shape: RoundedRectangleBorder(),
               builder: (context) {
                 return BottomSheetTypeComponent(
-                  initialSelected: controller.selectedType,
+                  initialSelected:
+                      controller.selectedTypeController.selectedType,
                   onTypeSelected: (type) {
                     controller.setSelectedType(type);
                   },
@@ -45,8 +46,9 @@ class ButtonTypeComponent extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                controller.selectedType != null
-                    ? (controller.selectedType?.name ?? "Type")
+                controller.selectedTypeController.selectedType != null
+                    ? (controller.selectedTypeController.selectedType?.name ??
+                        "Type")
                     : "All Type",
                 style: TextStyle(fontSize: 16.sp, color: Colors.white),
               ),

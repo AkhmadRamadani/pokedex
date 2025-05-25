@@ -24,7 +24,9 @@ class PokedexRepository {
       }
 
       final evolutions = await db.getEvolutions(pokemon);
-      return Right(pokemon.toEntity(evolutions));
+      final isFavorite = await db.isFavorite(pokemon.id ?? "");
+
+      return Right(pokemon.toEntity(evolutions, isFavorite));
     } else {
       return _fetchAndCachePokemons().then((result) {
         return result.fold((error) => Left(error), (_) async {
@@ -34,21 +36,9 @@ class PokedexRepository {
           }
 
           final evolutions = await db.getEvolutions(pokemon);
-          return Right(pokemon.toEntity(evolutions));
-        });
-      });
-    }
-  }
+          final isFavorite = await db.isFavorite(pokemon.id ?? "");
 
-  Future<Either<String, List<PokemonEntityModel>>> getAllPokemons() async {
-    if (await db.hasLocalPokemonData()) {
-      final data = await db.getAllPokemons();
-      return Right(data.map((x) => x.toEntity([])).toList());
-    } else {
-      return _fetchAndCachePokemons().then((result) {
-        return result.fold((error) => Left(error), (_) async {
-          final data = await db.getAllPokemons();
-          return Right(data.map((x) => x.toEntity([])).toList());
+          return Right(pokemon.toEntity(evolutions, isFavorite));
         });
       });
     }
@@ -61,7 +51,6 @@ class PokedexRepository {
     String? nameFilter,
     List<String>? typeFilters,
   }) async {
-    print(typeFilters);
     if (await db.hasLocalPokemonData()) {
       return _getLocalPokemons(
         page: page,
@@ -84,7 +73,6 @@ class PokedexRepository {
     });
   }
 
-  // Updated _getLocalPokemons with filtering logic
   Future<Either<String, List<PokemonEntityModel>>> _getLocalPokemons({
     required int page,
     required int limit,
@@ -98,7 +86,17 @@ class PokedexRepository {
         nameFilter: nameFilter,
         typeFilters: typeFilters,
       );
-      return Right(pokemons.map((x) => x.toEntity([])).toList());
+
+      final pokemonIds = pokemons.map((x) => x.id ?? "").toList();
+      final favoriteStatusMap = await db.getFavoriteStatusMap(pokemonIds);
+
+      final pokemonEntities =
+          pokemons.map((pokemon) {
+            final isFavorite = favoriteStatusMap[pokemon.id ?? ""] ?? false;
+            return pokemon.toEntity([], isFavorite);
+          }).toList();
+
+      return Right(pokemonEntities);
     } catch (e) {
       return Left('Failed to load local pokemon data: ${e.toString()}');
     }

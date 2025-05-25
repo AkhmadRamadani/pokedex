@@ -1,7 +1,12 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_conditional/flutter_conditional.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
+import 'package:rama_poke_app/core/assets/gen/assets.gen.dart';
 import 'package:rama_poke_app/core/shared/models/pokemon_model.dart';
 import 'package:rama_poke_app/core/shared/widgets/app_image_network_widget.dart';
+import 'package:rama_poke_app/modules/detail/controllers/detail_controller.dart';
 import 'package:rama_poke_app/modules/detail/views/clipper/custom_curve_clipper.dart';
 
 class CollapsingAppBar extends StatefulWidget {
@@ -78,12 +83,33 @@ class _CollapsingAppBarState extends State<CollapsingAppBar>
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Icon(
-            Icons.arrow_back_ios_new_rounded,
-            size: 24.w,
-            color: Colors.white,
+          GestureDetector(
+            onTap: () => context.pop(),
+            child: Icon(
+              Icons.arrow_back_ios_new_rounded,
+              size: 24.w,
+              color: Colors.white,
+            ),
           ),
-          Icon(Icons.favorite_border_rounded, size: 24.w, color: Colors.white),
+          Consumer<DetailController>(
+            builder: (context, controller, child) {
+              return GestureDetector(
+                onTap: () => controller.toggleFavorite(context, widget.pokemon),
+                child: Conditional.single(
+                  condition:
+                      controller.pokemonState.dataSuccess()?.isFavorite == true,
+                  widget: Assets.svg.icons.favoriteDetailActiveIcon.svg(
+                    width: 24.w,
+                    height: 24.w,
+                  ),
+                  fallback: Assets.svg.icons.favoriteDetailInactiveIcon.svg(
+                    width: 24.w,
+                    height: 24.h,
+                  ),
+                ),
+              );
+            },
+          ),
         ],
       ),
       bottom: PreferredSize(
@@ -148,29 +174,14 @@ class _CollapsingAppBarState extends State<CollapsingAppBar>
                               height: 80.w,
                             ),
                           SizedBox(width: 12.w),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                widget.pokemon.name ?? "Pokemon",
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20.sp,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              SizedBox(width: 4.w),
-                              Text(
-                                widget.pokemon.id ?? "#000",
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20.sp,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
+                          Text(
+                            widget.pokemon.name ?? "Pokemon",
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20.sp,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ],
                       ),

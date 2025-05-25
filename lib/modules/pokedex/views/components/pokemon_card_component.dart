@@ -4,14 +4,19 @@ import 'package:flutter_conditional/flutter_conditional.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:lottie/lottie.dart';
 import 'package:rama_poke_app/core/assets/gen/assets.gen.dart';
-import 'package:rama_poke_app/core/extensions/type_of_pokemon_extension.dart';
 import 'package:rama_poke_app/core/shared/models/pokemon_model.dart';
 import 'package:rama_poke_app/modules/pokedex/views/components/element_chips_component.dart';
 
 class PokemonCardComponent extends StatelessWidget {
-  const PokemonCardComponent({super.key, this.onTap, required this.pokemon});
+  const PokemonCardComponent({
+    super.key,
+    this.onTap,
+    required this.pokemon,
+    this.onFavoriteToggle,
+  });
   final Function()? onTap;
   final PokemonEntityModel pokemon;
+  final Function(PokemonEntityModel)? onFavoriteToggle;
 
   @override
   Widget build(BuildContext context) {
@@ -74,9 +79,7 @@ class PokemonCardComponent extends StatelessWidget {
                             topRight: Radius.circular(16.r),
                             bottomRight: Radius.circular(16.r),
                           ),
-                          color:
-                              pokemon.typeofpokemon?.first.color ??
-                              Colors.white,
+                          color: pokemon.color,
                         ),
                         alignment: Alignment.center,
                         child: Center(
@@ -114,6 +117,7 @@ class PokemonCardComponent extends StatelessWidget {
                         top: 0,
                         child: GestureDetector(
                           onTap: () {
+                            onFavoriteToggle?.call(pokemon);
                           },
                           child: Padding(
                             padding: EdgeInsets.all(8.w),

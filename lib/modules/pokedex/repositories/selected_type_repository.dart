@@ -13,7 +13,7 @@ class SelectedTypeRepository {
   Future<Either<String, TypeOfPokemon>> getSelectedTypeOfPokemon() async {
     try {
       final data = await db.getSelectedType();
-      if (data.isEmpty) return Left("Data Still Empty");
+      if (data == null) return Left("Data Still Empty");
       final result = mapper.map(data);
 
       return Right(result);

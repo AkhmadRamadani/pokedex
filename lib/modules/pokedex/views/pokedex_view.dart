@@ -20,13 +20,11 @@ class PokedexView extends StatefulWidget {
 class _PokedexViewState extends State<PokedexView> {
   final ScrollController _scrollController = ScrollController();
 
-  late PokedexController controller;
-
   @override
   void initState() {
     super.initState();
 
-    controller = context.read<PokedexController>();
+    PokedexController controller = context.read<PokedexController>();
     controller.refresh();
 
     _scrollController.addListener(() {
@@ -47,11 +45,14 @@ class _PokedexViewState extends State<PokedexView> {
 
   @override
   Widget build(BuildContext context) {
+    final controller = context.watch<PokedexController>();
+    final state = controller.pokemonsState;
+
     return Scaffold(
       appBar: AppSearchAppBarWidget(
         title: "Find the Pokemon",
-        onSearch: (p0) {
-          controller.setNameFilter(p0);
+        onSearch: (query) {
+          controller.setNameFilter(query);
         },
         controller: controller.searchController,
       ),
@@ -68,50 +69,40 @@ class _PokedexViewState extends State<PokedexView> {
                 SizedBox(height: 16.h),
                 ButtonTypeComponent(),
                 SizedBox(height: 16.h),
-                Consumer<PokedexController>(
-                  builder: (context, controller, child) {
-                    if (controller.hasActiveFilters) {
-                      return Column(
-                        children: [
-                          Container(
-                            padding: EdgeInsets.all(8.w),
-                            margin: EdgeInsets.only(bottom: 16.h),
-                            decoration: BoxDecoration(
-                              color: Colors.blue.withAlphaFromOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8.r),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(Icons.filter_list, size: 16.sp),
-                                SizedBox(width: 8.w),
-                                Expanded(
-                                  child: Text(
-                                    'Active filters: ${controller.selectedType != null ? 'Type: ${controller.selectedType?.name ?? ""}' : ''} ${controller.nameFilter != null ? ', Name: ${controller.nameFilter}' : ''}',
-                                    style: TextStyle(fontSize: 12.sp),
-                                  ),
-                                ),
-                                GestureDetector(
-                                  onTap: controller.clearFilters,
-                                  child: Icon(Icons.clear, size: 16.sp),
-                                ),
-                              ],
-                            ),
+                if (controller.hasActiveFilters)
+                  Container(
+                    padding: EdgeInsets.all(8.w),
+                    margin: EdgeInsets.only(bottom: 16.h),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.withAlphaFromOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.filter_list, size: 16.sp),
+                        SizedBox(width: 8.w),
+                        Expanded(
+                          child: Text(
+                            'Active filters: '
+                            '${controller.selectedTypeController.selectedType != null ? 'Type: ${controller.selectedTypeController.selectedType?.name ?? ""}' : ''}'
+                            '${controller.nameFilter != null ? ', Name: ${controller.nameFilter}' : ''}',
+                            style: TextStyle(fontSize: 12.sp),
                           ),
-                        ],
-                      );
-                    }
-                    return SizedBox.shrink();
-                  },
-                ),
-                Consumer<PokedexController>(
-                  builder: (context, controller, child) {
-                    final state = controller.pokemonsState;
-
+                        ),
+                        GestureDetector(
+                          onTap: controller.clearFilters,
+                          child: Icon(Icons.clear, size: 16.sp),
+                        ),
+                      ],
+                    ),
+                  ),
+                Builder(
+                  builder: (_) {
                     if (state.isLoading()) {
                       return CustomShimmerWidget().list(length: 10);
                     } else if (state.isSuccess()) {
                       final pokemons = state.dataSuccess() ?? [];
-                      if ((pokemons).isEmpty) {
+                      if (pokemons.isEmpty) {
                         return Text('No Data');
                       }
                       return ListView.separated(
@@ -123,6 +114,9 @@ class _PokedexViewState extends State<PokedexView> {
                               context.pushRoute(
                                 DetailWrapperRoute(id: pokemon.id ?? ""),
                               );
+                            },
+                            onFavoriteToggle: (pokemon) {
+                              controller.toggleFavorite(context, pokemon);
                             },
                           );
                         },
