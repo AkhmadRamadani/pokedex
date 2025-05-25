@@ -11,40 +11,41 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:auto_route/auto_route.dart' as _i4;
 import 'package:flutter/material.dart' as _i5;
-import 'package:rama_poke_app/modules/detail/views/detail_view.dart' as _i1;
+import 'package:rama_poke_app/modules/detail/views/detail_wrapper_page.dart'
+    as _i1;
 import 'package:rama_poke_app/modules/home/views/home_view.dart' as _i2;
 import 'package:rama_poke_app/modules/splash/views/splash_view.dart' as _i3;
 
 /// generated route for
-/// [_i1.DetailView]
-class DetailRoute extends _i4.PageRouteInfo<DetailRouteArgs> {
-  DetailRoute({
+/// [_i1.DetailWrapperPage]
+class DetailWrapperRoute extends _i4.PageRouteInfo<DetailWrapperRouteArgs> {
+  DetailWrapperRoute({
     _i5.Key? key,
     required String id,
     List<_i4.PageRouteInfo>? children,
   }) : super(
-         DetailRoute.name,
-         args: DetailRouteArgs(key: key, id: id),
+         DetailWrapperRoute.name,
+         args: DetailWrapperRouteArgs(key: key, id: id),
          rawPathParams: {'id': id},
          initialChildren: children,
        );
 
-  static const String name = 'DetailRoute';
+  static const String name = 'DetailWrapperRoute';
 
   static _i4.PageInfo page = _i4.PageInfo(
     name,
     builder: (data) {
       final pathParams = data.inheritedPathParams;
-      final args = data.argsAs<DetailRouteArgs>(
-        orElse: () => DetailRouteArgs(id: pathParams.getString('id')),
+      final args = data.argsAs<DetailWrapperRouteArgs>(
+        orElse: () => DetailWrapperRouteArgs(id: pathParams.getString('id')),
       );
-      return _i1.DetailView(key: args.key, id: args.id);
+      return _i1.DetailWrapperPage(key: args.key, id: args.id);
     },
   );
 }
 
-class DetailRouteArgs {
-  const DetailRouteArgs({this.key, required this.id});
+class DetailWrapperRouteArgs {
+  const DetailWrapperRouteArgs({this.key, required this.id});
 
   final _i5.Key? key;
 
@@ -52,7 +53,7 @@ class DetailRouteArgs {
 
   @override
   String toString() {
-    return 'DetailRouteArgs{key: $key, id: $id}';
+    return 'DetailWrapperRouteArgs{key: $key, id: $id}';
   }
 }
 

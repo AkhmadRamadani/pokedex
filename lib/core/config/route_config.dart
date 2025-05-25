@@ -7,7 +7,7 @@ class RouteConfig extends RootStackRouter {
   List<AutoRoute> get routes => [
     AutoRoute(path: '/', page: SplashRoute.page, initial: true),
     AutoRoute(path: '/home', page: HomeRoute.page),
-    AutoRoute(path: '/detail/:id', page: DetailRoute.page),
+    AutoRoute(path: '/detail/:id', page: DetailWrapperRoute.page),
   ];
 
   @override
