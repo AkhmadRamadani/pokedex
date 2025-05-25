@@ -18,7 +18,6 @@ class PokedexApp extends StatelessWidget {
       light: lightTheme,
       dark: darkTheme,
       initial: savedThemeMode ?? AdaptiveThemeMode.light,
-      debugShowFloatingThemeButton: true,
       builder:
           (theme, darkTheme) => ScreenUtilInit(
             designSize: const Size(375, 812),

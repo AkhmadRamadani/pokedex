@@ -3,16 +3,19 @@
 // Check in to version control
 
 import 'package:hive_ce/hive.dart';
+import 'package:rama_poke_app/core/databases/hive_model/favorite_hive_model.dart';
 import 'package:rama_poke_app/core/databases/hive_model/pokemon_hive_model.dart';
 
 extension HiveRegistrar on HiveInterface {
   void registerAdapters() {
+    registerAdapter(FavoriteHiveModelAdapter());
     registerAdapter(PokemonHiveModelAdapter());
   }
 }
 
 extension IsolatedHiveRegistrar on IsolatedHiveInterface {
   void registerAdapters() {
+    registerAdapter(FavoriteHiveModelAdapter());
     registerAdapter(PokemonHiveModelAdapter());
   }
 }

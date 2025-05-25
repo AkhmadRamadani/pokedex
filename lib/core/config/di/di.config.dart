@@ -12,6 +12,12 @@
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 
+import '../../../modules/favorite/controllers/favorite_controller.dart'
+    as _i979;
+import '../../../modules/favorite/repositories/favorite_repository.dart'
+    as _i249;
+import '../../../modules/pokedex/controllers/selected_type_controller.dart'
+    as _i383;
 import '../../../modules/pokedex/repositories/pokedex_repository.dart'
     as _i1024;
 import '../../../modules/pokedex/repositories/selected_type_repository.dart'
@@ -27,15 +33,20 @@ extension GetItInjectableX on _i174.GetIt {
     _i526.EnvironmentFilter? environmentFilter,
   }) {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
-    gh.factory<_i496.PokemonDataMapper>(() => _i496.PokemonDataMapper());
-    gh.factory<_i261.StringToPokemonTypeMapper>(
-      () => _i261.StringToPokemonTypeMapper(),
-    );
+    gh.factory<_i249.FavoriteRepository>(() => _i249.FavoriteRepository());
     gh.factory<_i1024.PokedexRepository>(() => _i1024.PokedexRepository());
     gh.factory<_i45.SelectedTypeRepository>(
       () => _i45.SelectedTypeRepository(),
     );
-    gh.lazySingleton<_i965.LocalDatabase>(() => _i965.LocalDatabase());
+    gh.singleton<_i965.LocalDatabase>(() => _i965.LocalDatabase());
+    gh.singleton<_i496.PokemonDataMapper>(() => _i496.PokemonDataMapper());
+    gh.singleton<_i261.StringToPokemonTypeMapper>(
+      () => _i261.StringToPokemonTypeMapper(),
+    );
+    gh.singleton<_i979.FavoriteController>(() => _i979.FavoriteController());
+    gh.singleton<_i383.SelectedTypeController>(
+      () => _i383.SelectedTypeController(),
+    );
     return this;
   }
 }
