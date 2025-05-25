@@ -18,6 +18,12 @@ class $AssetsImagesGen {
 
   /// Directory path: assets/images/dummies
   $AssetsImagesDummiesGen get dummies => const $AssetsImagesDummiesGen();
+
+  /// File path: assets/images/icon_app.jpg
+  AssetGenImage get iconApp => const AssetGenImage('assets/images/icon_app.jpg');
+
+  /// List of all assets
+  List<AssetGenImage> get values => [iconApp];
 }
 
 class $AssetsLottiesGen {

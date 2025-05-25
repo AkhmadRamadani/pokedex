@@ -38,7 +38,7 @@ dev_dependencies:
   freezed: ^3.0.6
   hive_ce_generator: ^1.9.1
   injectable_generator: ^2.7.0
-  
+  flutter_launcher_icons: ^0.14.3
 
 flutter:
   uses-material-design: true
@@ -56,3 +56,9 @@ flutter_gen:
     image: true
     flutter_svg: true
     lottie: true
+    
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/icon_app.jpg"
+  min_sdk_android: 21 
