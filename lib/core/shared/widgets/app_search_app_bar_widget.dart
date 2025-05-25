@@ -10,6 +10,7 @@ class AppSearchAppBarWidget extends StatefulWidget
   final Color? titleColor;
   final Widget? leadingIcon;
   final void Function(String)? onSearch;
+  final TextEditingController? controller;
 
   const AppSearchAppBarWidget({
     super.key,
@@ -19,6 +20,7 @@ class AppSearchAppBarWidget extends StatefulWidget
     this.titleColor,
     this.leadingIcon,
     this.onSearch,
+    this.controller,
   });
 
   @override
@@ -29,12 +31,16 @@ class AppSearchAppBarWidget extends StatefulWidget
 }
 
 class _AppSearchAppBarWidgetState extends State<AppSearchAppBarWidget> {
-  final TextEditingController _searchController = TextEditingController();
+  late TextEditingController _searchController;
 
   @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    if (widget.controller != null) {
+      _searchController = widget.controller!;
+    } else {
+      _searchController = TextEditingController();
+    }
   }
 
   @override
