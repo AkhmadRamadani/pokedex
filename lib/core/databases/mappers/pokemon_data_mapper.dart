@@ -6,7 +6,7 @@ import 'package:rama_poke_app/core/extensions/pokemon_hive_extension.dart';
 import 'package:rama_poke_app/core/shared/models/pokemon_model.dart';
 import 'package:rama_poke_app/modules/pokedex/models/pokemon_response_model.dart';
 
-@injectable
+@singleton
 class PokemonDataMapper {
   final db = getIt<LocalDatabase>();
   Future<List<PokemonHiveModel>> networkToLocal(
@@ -65,7 +65,8 @@ class PokemonDataMapper {
     final entities = await Future.wait(
       data.map((pokemon) async {
         final evolutions = await db.getEvolutions(pokemon);
-        return pokemon.toEntity(evolutions);
+        final isFavorite = await db.isFavorite(pokemon.id ?? "");
+        return pokemon.toEntity(evolutions, isFavorite);
       }),
     );
     return entities;

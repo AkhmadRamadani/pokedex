@@ -2,7 +2,7 @@
 import 'package:injectable/injectable.dart';
 import 'package:rama_poke_app/core/shared/models/pokemon_model.dart';
 
-@injectable
+@singleton
 class StringToPokemonTypeMapper {
   TypeOfPokemon map(String type) {
     switch (type.toLowerCase()) {
