@@ -1,3 +1,7 @@
+// To parse this JSON data, do
+//
+//     final pokemonResponseModel = pokemonResponseModelFromJson(jsonString);
+
 import 'dart:convert';
 
 List<PokemonResponseModel> pokemonResponseModelFromJson(String str) =>
@@ -67,6 +71,64 @@ class PokemonResponseModel {
     this.baseExp,
   });
 
+  PokemonResponseModel copyWith({
+    String? name,
+    String? id,
+    String? imageurl,
+    String? xdescription,
+    String? ydescription,
+    String? height,
+    String? category,
+    String? weight,
+    List<String>? typeofpokemon,
+    List<String>? weaknesses,
+    List<String>? evolutions,
+    List<String>? abilities,
+    int? hp,
+    int? attack,
+    int? defense,
+    int? specialAttack,
+    int? specialDefense,
+    int? speed,
+    int? total,
+    String? malePercentage,
+    String? femalePercentage,
+    int? genderless,
+    String? cycles,
+    String? eggGroups,
+    String? evolvedfrom,
+    String? reason,
+    String? baseExp,
+  }) => PokemonResponseModel(
+    name: name ?? this.name,
+    id: id ?? this.id,
+    imageurl: imageurl ?? this.imageurl,
+    xdescription: xdescription ?? this.xdescription,
+    ydescription: ydescription ?? this.ydescription,
+    height: height ?? this.height,
+    category: category ?? this.category,
+    weight: weight ?? this.weight,
+    typeofpokemon: typeofpokemon ?? this.typeofpokemon,
+    weaknesses: weaknesses ?? this.weaknesses,
+    evolutions: evolutions ?? this.evolutions,
+    abilities: abilities ?? this.abilities,
+    hp: hp ?? this.hp,
+    attack: attack ?? this.attack,
+    defense: defense ?? this.defense,
+    specialAttack: specialAttack ?? this.specialAttack,
+    specialDefense: specialDefense ?? this.specialDefense,
+    speed: speed ?? this.speed,
+    total: total ?? this.total,
+    malePercentage: malePercentage ?? this.malePercentage,
+    femalePercentage: femalePercentage ?? this.femalePercentage,
+    genderless: genderless ?? this.genderless,
+    cycles: cycles ?? this.cycles,
+    eggGroups: eggGroups ?? this.eggGroups,
+    evolvedfrom: evolvedfrom ?? this.evolvedfrom,
+    reason: reason ?? this.reason,
+    baseExp: baseExp ?? this.baseExp,
+  );
+
   factory PokemonResponseModel.fromJson(Map<String, dynamic> json) =>
       PokemonResponseModel(
         name: json["name"],
@@ -80,19 +142,19 @@ class PokemonResponseModel {
         typeofpokemon:
             json["typeofpokemon"] == null
                 ? []
-                : List<String>.from(json["typeofpokemon"].map((x) => x)),
+                : List<String>.from(json["typeofpokemon"]!.map((x) => x)),
         weaknesses:
             json["weaknesses"] == null
                 ? []
-                : List<String>.from(json["weaknesses"].map((x) => x)),
+                : List<String>.from(json["weaknesses"]!.map((x) => x)),
         evolutions:
             json["evolutions"] == null
                 ? []
-                : List<String>.from(json["evolutions"].map((x) => x)),
+                : List<String>.from(json["evolutions"]!.map((x) => x)),
         abilities:
             json["abilities"] == null
                 ? []
-                : List<String>.from(json["abilities"].map((x) => x)),
+                : List<String>.from(json["abilities"]!.map((x) => x)),
         hp: json["hp"],
         attack: json["attack"],
         defense: json["defense"],
@@ -119,10 +181,16 @@ class PokemonResponseModel {
     "height": height,
     "category": category,
     "weight": weight,
-    "typeofpokemon": typeofpokemon ?? [],
-    "weaknesses": weaknesses ?? [],
-    "evolutions": evolutions ?? [],
-    "abilities": abilities ?? [],
+    "typeofpokemon":
+        typeofpokemon == null
+            ? []
+            : List<dynamic>.from(typeofpokemon!.map((x) => x)),
+    "weaknesses":
+        weaknesses == null ? [] : List<dynamic>.from(weaknesses!.map((x) => x)),
+    "evolutions":
+        evolutions == null ? [] : List<dynamic>.from(evolutions!.map((x) => x)),
+    "abilities":
+        abilities == null ? [] : List<dynamic>.from(abilities!.map((x) => x)),
     "hp": hp,
     "attack": attack,
     "defense": defense,

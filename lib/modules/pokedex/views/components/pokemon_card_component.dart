@@ -1,12 +1,17 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_conditional/flutter_conditional.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:rama_poke_app/core/assets/element/element_color.dart';
+import 'package:lottie/lottie.dart';
 import 'package:rama_poke_app/core/assets/gen/assets.gen.dart';
+import 'package:rama_poke_app/core/extensions/type_of_pokemon_extension.dart';
+import 'package:rama_poke_app/core/shared/models/pokemon_model.dart';
 import 'package:rama_poke_app/modules/pokedex/views/components/element_chips_component.dart';
 
 class PokemonCardComponent extends StatelessWidget {
-  const PokemonCardComponent({super.key, this.onTap});
+  const PokemonCardComponent({super.key, this.onTap, required this.pokemon});
   final Function()? onTap;
+  final PokemonEntityModel pokemon;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +33,7 @@ class PokemonCardComponent extends StatelessWidget {
           child: Row(
             children: [
               Expanded(
-                flex: 3,
+                flex: 5,
                 child: Padding(
                   padding: EdgeInsets.symmetric(
                     horizontal: 16.w,
@@ -39,7 +44,7 @@ class PokemonCardComponent extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Charizard",
+                        pokemon.name ?? "Pokemon",
                         style: TextStyle(
                           fontSize: 21.sp,
                           fontWeight: FontWeight.w600,
@@ -48,16 +53,17 @@ class PokemonCardComponent extends StatelessWidget {
                       ),
                       SizedBox(height: 4.h),
                       ElementChipsComponent(
-                        elements: ["Fire", "Fire", "Water"],
+                        elements: pokemon.typeofpokemon ?? [],
                         size: ChipSize.medium,
-                        maxElementsToShow: 1,
+                        maxElementsToShow: 2,
+                        clipText: (pokemon.typeofpokemon?.length ?? 0) > 1,
                       ),
                     ],
                   ),
                 ),
               ),
               Expanded(
-                flex: 2,
+                flex: 3,
                 child: SizedBox(
                   height: 100.h,
                   child: Stack(
@@ -68,17 +74,37 @@ class PokemonCardComponent extends StatelessWidget {
                             topRight: Radius.circular(16.r),
                             bottomRight: Radius.circular(16.r),
                           ),
-                          color: ElementColor.fireElement,
+                          color:
+                              pokemon.typeofpokemon?.first.color ??
+                              Colors.white,
                         ),
                         alignment: Alignment.center,
                         child: Center(
                           child: SizedBox(
                             width: 100.w * (80 / 100),
                             height: 100.h * (80 / 100),
-                            child: Assets.images.dummies.charizard.image(
+                            child: CachedNetworkImage(
+                              imageUrl: pokemon.imageurl ?? "",
+                              fit: BoxFit.cover,
                               width: 100.w * (80 / 100),
                               height: 100.h * (80 / 100),
-                              fit: BoxFit.cover,
+                              errorWidget: (context, url, error) {
+                                return Assets.svg.icons.pokedexActiveIcon.svg(
+                                  width: 100.w * (80 / 100),
+                                  height: 100.h * (80 / 100),
+                                );
+                              },
+                              progressIndicatorBuilder: (
+                                context,
+                                url,
+                                progress,
+                              ) {
+                                return Lottie.asset(
+                                  Assets.lotties.pokemonLoadingAnimation.path,
+                                  width: 100.w * (80 / 100),
+                                  height: 100.h * (80 / 100),
+                                );
+                              },
                             ),
                           ),
                         ),
@@ -86,11 +112,21 @@ class PokemonCardComponent extends StatelessWidget {
                       Positioned(
                         right: 0,
                         top: 0,
-                        child: Padding(
-                          padding: EdgeInsets.all(8.w),
-                          child: Assets.svg.icons.favoriteCardActiveIcon.svg(
-                            width: 32.w,
-                            height: 32.h,
+                        child: GestureDetector(
+                          onTap: () {
+                          },
+                          child: Padding(
+                            padding: EdgeInsets.all(8.w),
+                            child: Conditional.single(
+                              condition: pokemon.isFavorite ?? false,
+                              widget: Assets.svg.icons.favoriteCardActiveIcon
+                                  .svg(width: 32.w, height: 32.h),
+                              fallback: Assets
+                                  .svg
+                                  .icons
+                                  .favoriteCardInactiveIcon
+                                  .svg(width: 32.w, height: 32.h),
+                            ),
                           ),
                         ),
                       ),

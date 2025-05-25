@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:rama_poke_app/core/assets/element/element_asset.dart';
-import 'package:rama_poke_app/core/assets/element/element_color.dart';
+import 'package:rama_poke_app/core/extensions/color_extension.dart';
+import 'package:rama_poke_app/core/extensions/type_of_pokemon_extension.dart';
+import 'package:rama_poke_app/core/shared/models/pokemon_model.dart';
+
+enum ChipSize { small, medium, big, simple, grid }
 
 class ElementChipsComponent extends StatelessWidget {
-  final List<String> elements;
+  final List<TypeOfPokemon> elements;
   final double chipSpacing;
   final ChipSize size;
   final int? maxElementsToShow;
   final bool useGrid;
+  final bool clipText;
+  final void Function(TypeOfPokemon)? onSelected;
+  final Set<TypeOfPokemon>? selectedElements;
+  final bool allowMultipleSelection; // New parameter
 
   const ElementChipsComponent({
     super.key,
@@ -17,12 +24,16 @@ class ElementChipsComponent extends StatelessWidget {
     this.size = ChipSize.medium,
     this.maxElementsToShow,
     this.useGrid = false,
+    this.clipText = false,
+    this.onSelected,
+    this.selectedElements,
+    this.allowMultipleSelection = false, // Default to single selection
   });
 
-  List<String> _getDisplayedElements() {
-    if (maxElementsToShow != null && elements.length > maxElementsToShow!) {
-      final shown = elements.sublist(0, maxElementsToShow!);
-      final moreCount = elements.length - maxElementsToShow!;
+  List<dynamic> _getDisplayedElements() {
+    if (maxElementsToShow != null && elements.length > (maxElementsToShow!)) {
+      final shown = elements.sublist(0, maxElementsToShow! - 1);
+      final moreCount = elements.length - shown.length;
       return [...shown, '+$moreCount more'];
     }
     return elements;
@@ -37,14 +48,24 @@ class ElementChipsComponent extends StatelessWidget {
         displayedElements.map((element) {
           final chipSize = useGrid ? ChipSize.grid : size;
 
-          if (element.startsWith('+')) {
-            return MoreChip(text: element, size: chipSize);
+          if (element is String) {
+            if (element.startsWith('+')) {
+              return MoreChip(text: element, size: chipSize);
+            }
+          }
+
+          bool isSelected = true;
+          if (onSelected != null && selectedElements != null) {
+            isSelected = selectedElements?.contains(element) ?? false;
           }
 
           return ElementChip(
             element: element,
             size: chipSize,
             isInGrid: useGrid,
+            clippedText: clipText,
+            isSelected: isSelected,
+            onTap: onSelected != null ? () => onSelected!(element) : null,
           );
         }).toList();
 
@@ -70,15 +91,21 @@ class ElementChipsComponent extends StatelessWidget {
 }
 
 class ElementChip extends StatelessWidget {
-  final String element;
+  final TypeOfPokemon element;
   final ChipSize size;
   final bool isInGrid;
+  final bool clippedText;
+  final bool isSelected;
+  final VoidCallback? onTap;
 
   const ElementChip({
     super.key,
     required this.element,
     required this.size,
     this.isInGrid = false,
+    this.clippedText = false,
+    this.isSelected = false,
+    this.onTap,
   });
 
   @override
@@ -149,95 +176,138 @@ class ElementChip extends StatelessWidget {
             ? 8.w
             : 4.w;
 
-    final simpleWidget = Container(
-      width: 68.w,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(50.r),
-        color: ElementColor.fireElement,
-      ),
-      alignment: Alignment.center,
-      padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 4.w),
-      child: ElementAsset.fire(width: 10.w, height: 10.w, color: Colors.white),
-    );
+    final backgroundColor =
+        isSelected ? element.color : element.color.withAlphaFromOpacity(0.2);
 
-    final chipWidget = Chip(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(50.r),
-        side: BorderSide.none,
-      ),
-      shadowColor: Colors.transparent,
-      surfaceTintColor: Colors.transparent,
-      side: BorderSide.none,
-      padding: EdgeInsets.symmetric(
-        vertical: paddingVertical,
-        horizontal: paddingHorizontal,
-      ),
-      backgroundColor: ElementColor.fireElement,
-      label: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: iconContainerSize,
-            height: iconContainerSize,
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-            ),
-            alignment: Alignment.center,
-            child: SizedBox(
-              width: iconSize,
-              height: iconSize,
-              child: ElementAsset.fire(width: iconSize, height: iconSize),
-            ),
-          ),
-          SizedBox(width: spacing),
-          Text(
-            element,
-            style: TextStyle(
-              fontSize: textSize,
-              color: Colors.black,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
+    final borderColor = isSelected ? Colors.transparent : element.color;
+
+    final textColor =
+        isSelected
+            ? (element.color.isColorDark ? Colors.white : Colors.black)
+            : element.color;
+
+    final simpleWidget = GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 68.w,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(50.r),
+          color: backgroundColor,
+          border: Border.all(color: borderColor, width: isSelected ? 0 : 2),
+        ),
+        alignment: Alignment.center,
+        padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 4.w),
+        child: element.icon(
+          10.w,
+          10.w,
+          isSelected ? Colors.white : element.color,
+        ),
       ),
     );
 
-    final gridWidget = Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(50.r),
-        color: ElementColor.fireElement,
+    final chipWidget = GestureDetector(
+      onTap: onTap,
+      child: Chip(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(50.r),
+          side: BorderSide(color: borderColor, width: isSelected ? 0 : 2),
+        ),
+        shadowColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        padding: EdgeInsets.symmetric(
+          vertical: paddingVertical,
+          horizontal: paddingHorizontal,
+        ),
+        backgroundColor: backgroundColor,
+        label: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: iconContainerSize,
+              height: iconContainerSize,
+              decoration: BoxDecoration(
+                color:
+                    isSelected
+                        ? Colors.white
+                        : element.color.withAlphaFromOpacity(0.2),
+                shape: BoxShape.circle,
+                border:
+                    isSelected
+                        ? null
+                        : Border.all(color: element.color, width: 1),
+              ),
+              alignment: Alignment.center,
+              child: SizedBox(
+                width: iconSize,
+                height: iconSize,
+                child: element.icon(iconSize, iconSize, null),
+              ),
+            ),
+            SizedBox(width: spacing),
+            Text(
+              clippedText
+                  ? element.name.length > 6
+                      ? '${element.name.substring(0, 6)}...'
+                      : element.name
+                  : element.name,
+              maxLines: 1,
+              style: TextStyle(
+                fontSize: textSize,
+                color: textColor,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
       ),
-      alignment: Alignment.center,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: iconContainerSize,
-            height: iconContainerSize,
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
+    );
+
+    final gridWidget = GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(50.r),
+          color: backgroundColor,
+          border: Border.all(color: borderColor, width: isSelected ? 0 : 2),
+        ),
+        alignment: Alignment.center,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: iconContainerSize,
+              height: iconContainerSize,
+              decoration: BoxDecoration(
+                color:
+                    isSelected
+                        ? Colors.white
+                        : element.color.withAlphaFromOpacity(0.2),
+                shape: BoxShape.circle,
+                border:
+                    isSelected
+                        ? null
+                        : Border.all(color: element.color, width: 1),
+              ),
+              alignment: Alignment.center,
+              child: SizedBox(
+                width: iconSize,
+                height: iconSize,
+                child: element.icon(iconSize, iconSize, null),
+              ),
             ),
-            alignment: Alignment.center,
-            child: SizedBox(
-              width: iconSize,
-              height: iconSize,
-              child: ElementAsset.fire(width: iconSize, height: iconSize),
+            SizedBox(width: spacing),
+            Text(
+              element.name,
+              style: TextStyle(
+                fontSize: textSize,
+                color: textColor,
+                fontWeight: FontWeight.w500,
+              ),
             ),
-          ),
-          SizedBox(width: spacing),
-          Text(
-            element,
-            style: TextStyle(
-              fontSize: textSize,
-              color: Colors.black,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
 
@@ -300,5 +370,3 @@ class MoreChip extends StatelessWidget {
     );
   }
 }
-
-enum ChipSize { small, medium, big, simple, grid }
