@@ -28,14 +28,12 @@ class _BottomSheetTypeComponentState extends State<BottomSheetTypeComponent> {
 
   void _onTypeSelect(TypeOfPokemon type) {
     setState(() {
-      // Toggle selection - if same type is selected, deselect it
       if (_selectedType == type) {
         _selectedType = null;
       } else {
         _selectedType = type;
       }
 
-      // Notify parent with the selected type
       widget.onTypeSelected?.call(_selectedType);
     });
   }
@@ -51,7 +49,6 @@ class _BottomSheetTypeComponentState extends State<BottomSheetTypeComponent> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Header with title and close button
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -69,7 +66,6 @@ class _BottomSheetTypeComponentState extends State<BottomSheetTypeComponent> {
           ),
           const SizedBox(height: 12),
 
-          // Type selection chips
           ElementChipsComponent(
             elements: TypeOfPokemon.values,
             selectedElements:
@@ -81,7 +77,6 @@ class _BottomSheetTypeComponentState extends State<BottomSheetTypeComponent> {
 
           const SizedBox(height: 16),
 
-          // Action buttons
           Row(
             children: [
               Expanded(

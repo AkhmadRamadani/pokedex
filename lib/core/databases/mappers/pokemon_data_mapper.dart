@@ -1,14 +1,16 @@
-import 'package:injectable/injectable.dart';
 import 'package:rama_poke_app/core/config/di/di.dart';
 import 'package:rama_poke_app/core/databases/hive_model/pokemon_hive_model.dart';
-import 'package:rama_poke_app/core/databases/local_database.dart';
+import 'package:rama_poke_app/core/databases/services/favorite_local_service.dart';
+import 'package:rama_poke_app/core/databases/services/pokemon_local_service.dart';
 import 'package:rama_poke_app/core/extensions/pokemon_hive_extension.dart';
 import 'package:rama_poke_app/core/shared/models/pokemon_model.dart';
 import 'package:rama_poke_app/modules/pokedex/models/pokemon_response_model.dart';
 
-@singleton
 class PokemonDataMapper {
-  final db = getIt<LocalDatabase>();
+
+  final pokemonDb = getIt<PokemonLocalService>();
+  final favoriteDb = getIt<FavoriteLocalService>();
+
   Future<List<PokemonHiveModel>> networkToLocal(
     List<PokemonResponseModel> data,
   ) async {
@@ -64,8 +66,8 @@ class PokemonDataMapper {
   ) async {
     final entities = await Future.wait(
       data.map((pokemon) async {
-        final evolutions = await db.getEvolutions(pokemon);
-        final isFavorite = await db.isFavorite(pokemon.id ?? "");
+        final evolutions = await pokemonDb.getEvolutions(pokemon);
+        final isFavorite = await favoriteDb.isFavorite(pokemon.id ?? "");
         return pokemon.toEntity(evolutions, isFavorite);
       }),
     );

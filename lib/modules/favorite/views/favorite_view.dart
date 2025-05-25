@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:rama_poke_app/core/config/route_config.gr.dart';
+import 'package:rama_poke_app/core/shared/widgets/app_empty_widget.dart';
 import 'package:rama_poke_app/core/shared/widgets/app_shimmer_widget.dart';
 import 'package:rama_poke_app/core/shared/widgets/custom_app_bar_widget.dart';
 import 'package:rama_poke_app/modules/favorite/controllers/favorite_controller.dart';
@@ -16,11 +17,23 @@ class FavoriteView extends StatefulWidget {
 }
 
 class _FavoriteViewState extends State<FavoriteView> {
+  static const String _appBarTitle = "Favorite";
+  static const String _noDataTitle = "No favorite pokemon yet";
+  static const String _noDataMessage =
+      "Add your favorite pokemon by clicking the heart icon <3";
+  static const String _defaultErrorTitle = "Woops! But don't worry";
+  static const String _defaultErrorMessage = "There has been an error";
+  static const double _horizontalPadding = 16.0;
+  static const double _itemSpacing = 12.0;
+  static const int _shimmerLength = 10;
+
   @override
   void initState() {
     super.initState();
+    _initializeFavorites();
+  }
 
-    // Safe way to use context in initState
+  void _initializeFavorites() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final controller = context.read<FavoriteController>();
       controller.getFavorites();
@@ -29,56 +42,105 @@ class _FavoriteViewState extends State<FavoriteView> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = context.watch<FavoriteController>();
+    return Scaffold(
+      appBar: CustomAppBarWidget(title: _appBarTitle),
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: _horizontalPadding.w),
+        child: Consumer<FavoriteController>(
+          builder: (context, controller, child) => _buildBody(controller),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBody(FavoriteController controller) {
     final state = controller.favoriteState;
 
-    return Scaffold(
-      appBar: CustomAppBarWidget(title: "Favorite"),
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
-        child: Builder(
-          builder: (_) {
-            if (state.isLoading()) {
-              return CustomShimmerWidget().list(length: 10);
-            } else if (state.isSuccess()) {
-              final pokemons = state.dataSuccess() ?? [];
-              if (pokemons.isEmpty) {
-                return Text('No Data');
-              }
-              return ListView.separated(
-                itemBuilder: (_, index) {
-                  final pokemon = pokemons[index];
-                  return PokemonCardComponent(
-                    pokemon: pokemon,
-                    onTap: () {
-                      context.pushRoute(
-                        DetailWrapperRoute(id: pokemon.id ?? ""),
-                      );
-                    },
-                    onFavoriteToggle: (pokemon) {
-                      controller.toggleFavorite(
-                        context,
-                        pokemon.id ?? "",
-                        pokemon.isFavorite ?? false,
-                      );
-                    },
-                  );
-                },
-                separatorBuilder: (_, index) => SizedBox(height: 12.h),
-                itemCount: pokemons.length,
-              );
-            } else if (state.isError()) {
-              return Text(
-                controller.favoriteState.messageError() ??
-                    "There has been an error",
-              );
-            } else if (state.isEmpty()) {
-              return Text('No Data');
-            }
+    if (state.isLoading()) {
+      return _buildLoadingState();
+    }
 
-            return SizedBox.shrink();
-          },
-        ),
+    if (state.isSuccess()) {
+      return _buildSuccessState(controller, state.dataSuccess() ?? []);
+    }
+
+    if (state.isError()) {
+      return _buildErrorState(controller);
+    }
+
+    if (state.isEmpty()) {
+      return _buildEmptyState();
+    }
+
+    return const SizedBox.shrink();
+  }
+
+  Widget _buildLoadingState() {
+    return CustomShimmerWidget().list(length: _shimmerLength);
+  }
+
+  Widget _buildSuccessState(
+    FavoriteController controller,
+    List<dynamic> pokemons,
+  ) {
+    if (pokemons.isEmpty) {
+      return _buildEmptyState();
+    }
+
+    return ListView.separated(
+      itemBuilder:
+          (context, index) => _buildPokemonCard(controller, pokemons[index]),
+      separatorBuilder: (context, index) => SizedBox(height: _itemSpacing.h),
+      itemCount: pokemons.length,
+    );
+  }
+
+  Widget _buildPokemonCard(FavoriteController controller, dynamic pokemon) {
+    return PokemonCardComponent(
+      pokemon: pokemon,
+      onTap: () => _navigateToDetail(pokemon),
+      onFavoriteToggle: (pokemon) => _handleFavoriteToggle(controller, pokemon),
+    );
+  }
+
+  void _navigateToDetail(dynamic pokemon) {
+    context.pushRoute(DetailWrapperRoute(id: pokemon.id ?? ""));
+  }
+
+  void _handleFavoriteToggle(FavoriteController controller, dynamic pokemon) {
+    controller.toggleFavorite(
+      context,
+      pokemon.id ?? "",
+      pokemon.isFavorite ?? false,
+    );
+  }
+
+  Widget _buildErrorState(FavoriteController controller) {
+    final errorMessage =
+        controller.favoriteState.messageError() ?? _defaultErrorMessage;
+    return Center(
+      child: AppEmptyWidget.custom(
+        heightImage: 100.h,
+        widthImage: 100.w,
+        titleText: _defaultErrorTitle,
+        descText: errorMessage,
+        onRefresh: () {
+          _initializeFavorites();
+        },
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: AppEmptyWidget.custom(
+        titleText: _noDataTitle,
+        descText: _noDataMessage,
+        heightImage: 100.h,
+        widthImage: 100.w,
+        onRefresh: () {
+          _initializeFavorites();
+        },
       ),
     );
   }

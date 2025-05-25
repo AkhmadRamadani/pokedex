@@ -4,8 +4,9 @@ import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 import 'package:rama_poke_app/core/config/di/di.dart';
 import 'package:rama_poke_app/core/constants/api_constant.dart';
-import 'package:rama_poke_app/core/databases/local_database.dart';
 import 'package:rama_poke_app/core/databases/mappers/pokemon_data_mapper.dart';
+import 'package:rama_poke_app/core/databases/services/favorite_local_service.dart';
+import 'package:rama_poke_app/core/databases/services/pokemon_local_service.dart';
 import 'package:rama_poke_app/core/extensions/pokemon_hive_extension.dart';
 import 'package:rama_poke_app/core/services/network_service.dart';
 import 'package:rama_poke_app/core/shared/models/pokemon_model.dart';
@@ -13,30 +14,31 @@ import 'package:rama_poke_app/modules/pokedex/models/pokemon_response_model.dart
 
 @injectable
 class PokedexRepository {
-  final db = getIt<LocalDatabase>();
+  final pokemonDb = getIt<PokemonLocalService>();
+  final favoriteDb = getIt<FavoriteLocalService>();
   final mapper = getIt<PokemonDataMapper>();
 
   Future<Either<String, PokemonEntityModel>> getPokemon(String id) async {
-    if (await db.hasLocalPokemonData()) {
-      final pokemon = await db.getPokemon(id);
+    if (await pokemonDb.hasLocalPokemonData()) {
+      final pokemon = await pokemonDb.getPokemon(id);
       if (pokemon == null) {
         return Left('Pokemon not found');
       }
 
-      final evolutions = await db.getEvolutions(pokemon);
-      final isFavorite = await db.isFavorite(pokemon.id ?? "");
+      final evolutions = await pokemonDb.getEvolutions(pokemon);
+      final isFavorite = await favoriteDb.isFavorite(pokemon.id ?? "");
 
       return Right(pokemon.toEntity(evolutions, isFavorite));
     } else {
       return _fetchAndCachePokemons().then((result) {
         return result.fold((error) => Left(error), (_) async {
-          final pokemon = await db.getPokemon(id);
+          final pokemon = await pokemonDb.getPokemon(id);
           if (pokemon == null) {
             return Left('Pokemon not found');
           }
 
-          final evolutions = await db.getEvolutions(pokemon);
-          final isFavorite = await db.isFavorite(pokemon.id ?? "");
+          final evolutions = await pokemonDb.getEvolutions(pokemon);
+          final isFavorite = await favoriteDb.isFavorite(pokemon.id ?? "");
 
           return Right(pokemon.toEntity(evolutions, isFavorite));
         });
@@ -51,7 +53,7 @@ class PokedexRepository {
     String? nameFilter,
     List<String>? typeFilters,
   }) async {
-    if (await db.hasLocalPokemonData()) {
+    if (await pokemonDb.hasLocalPokemonData()) {
       return _getLocalPokemons(
         page: page,
         limit: limit,
@@ -80,7 +82,7 @@ class PokedexRepository {
     List<String>? typeFilters,
   }) async {
     try {
-      final pokemons = await db.getFilteredPokemons(
+      final pokemons = await pokemonDb.getFilteredPokemons(
         page: page,
         limit: limit,
         nameFilter: nameFilter,
@@ -88,7 +90,9 @@ class PokedexRepository {
       );
 
       final pokemonIds = pokemons.map((x) => x.id ?? "").toList();
-      final favoriteStatusMap = await db.getFavoriteStatusMap(pokemonIds);
+      final favoriteStatusMap = await favoriteDb.getFavoriteStatusMap(
+        pokemonIds,
+      );
 
       final pokemonEntities =
           pokemons.map((pokemon) {
@@ -120,7 +124,7 @@ class PokedexRepository {
                 .toList();
 
         final data = await mapper.networkToLocal(pokemons);
-        await db.savePokemons(data);
+        await pokemonDb.savePokemons(data);
 
         return const Right(unit);
       } catch (e) {

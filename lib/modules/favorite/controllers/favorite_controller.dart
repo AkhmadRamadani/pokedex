@@ -53,7 +53,9 @@ class FavoriteController extends ChangeNotifier {
         _favoriteState = UIState.success(data: updated);
       }
 
-      var currentPokemon = await _favoriteRepository.db.getPokemon(pokemonId);
+      var currentPokemon = await _favoriteRepository.pokemonDb.getPokemon(
+        pokemonId,
+      );
 
       final snackBar = SnackBar(
         elevation: 0,

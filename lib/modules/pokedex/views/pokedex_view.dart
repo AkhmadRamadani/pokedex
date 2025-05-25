@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:rama_poke_app/core/config/route_config.gr.dart';
 import 'package:rama_poke_app/core/extensions/color_extension.dart';
+import 'package:rama_poke_app/core/shared/widgets/app_empty_widget.dart';
 import 'package:rama_poke_app/core/shared/widgets/app_search_app_bar_widget.dart';
 import 'package:rama_poke_app/core/shared/widgets/app_shimmer_widget.dart';
 import 'package:rama_poke_app/modules/pokedex/controllers/pokedex_controller.dart';
@@ -103,7 +104,16 @@ class _PokedexViewState extends State<PokedexView> {
                     } else if (state.isSuccess()) {
                       final pokemons = state.dataSuccess() ?? [];
                       if (pokemons.isEmpty) {
-                        return Text('No Data');
+                        return AppEmptyWidget.custom(
+                          titleText: "Noooo, there is no pokemon here",
+                          descText: "Can you try another filter?",
+                          heightImage: 100.h,
+                          widthImage: 100.w,
+                          customHeightContent: 0.5.sh,
+                          onRefresh: () {
+                            controller.refresh();
+                          },
+                        );
                       }
                       return ListView.separated(
                         itemBuilder: (_, index) {
@@ -126,12 +136,27 @@ class _PokedexViewState extends State<PokedexView> {
                         physics: const NeverScrollableScrollPhysics(),
                       );
                     } else if (state.isError()) {
-                      return Text(
-                        controller.pokemonsState.messageError() ??
-                            "There has been an error",
+                      return AppEmptyWidget.custom(
+                        titleText: "Something went wrong",
+                        descText: "Can you try again?",
+                        heightImage: 100.h,
+                        widthImage: 100.w,
+                        customHeightContent: 0.5.sh,
+                        onRefresh: () {
+                          controller.refresh();
+                        },
                       );
                     } else if (state.isEmpty()) {
-                      return Text('No Data');
+                      return AppEmptyWidget.custom(
+                        titleText: "Noooo, there is no pokemon here",
+                        descText: "Can you try another filter?",
+                        heightImage: 100.h,
+                        widthImage: 100.w,
+                        customHeightContent: 0.5.sh,
+                        onRefresh: () {
+                          controller.refresh();
+                        },
+                      );
                     }
 
                     return SizedBox.shrink();
