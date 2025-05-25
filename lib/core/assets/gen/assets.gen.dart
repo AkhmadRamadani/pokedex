@@ -27,8 +27,12 @@ class $AssetsLottiesGen {
   LottieGenImage get loadingAnimation =>
       const LottieGenImage('assets/lotties/loading_animation.json');
 
+  /// File path: assets/lotties/pokemon_loading_animation.json
+  LottieGenImage get pokemonLoadingAnimation =>
+      const LottieGenImage('assets/lotties/pokemon_loading_animation.json');
+
   /// List of all assets
-  List<LottieGenImage> get values => [loadingAnimation];
+  List<LottieGenImage> get values => [loadingAnimation, pokemonLoadingAnimation];
 }
 
 class $AssetsSvgGen {
